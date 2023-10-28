@@ -4,19 +4,19 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-#include "AuraUserWidgetBase.generated.h"
+#include "AuraUserWidget.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class AURA_API UAuraUserWidgetBase : public UUserWidget
+class AURA_API UAuraUserWidget : public UUserWidget
 {
 	GENERATED_BODY()
 
 public:
 	UFUNCTION(BlueprintCallable)
-	void SerWidgetController(UObject* InWidgetController);
+	void SetWidgetController(UObject* InWidgetController);
 	
 	
 	UPROPERTY(BlueprintReadOnly)
