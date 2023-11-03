@@ -15,23 +15,22 @@ enum class EEffectApplicationPolicy
 {
 	ApplyOnOverlap,
 	ApplyOnEndOverlap,
-	DoNotApply,
+	DoNotApply
 };
 
 UENUM(BlueprintType)
 enum class EEffectRemovalPolicy
 {
-	RemoveOnOverlap,
 	RemoveOnEndOverlap,
-	DoNotRemove,
+	DoNotRemove
 };
 
 UCLASS()
 class AURA_API AAuraEffectActor : public AActor
 {
 	GENERATED_BODY()
-
-public:
+	
+public:	
 	AAuraEffectActor();
 
 protected:
@@ -48,7 +47,7 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Applied Effects")
 	bool bDestroyOnEffectRemoval = false;
-
+	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Applied Effects")
 	TSubclassOf<UGameplayEffect> InstantGameplayEffectClass;
 
@@ -71,4 +70,7 @@ protected:
 	EEffectRemovalPolicy InfiniteEffectRemovalPolicy = EEffectRemovalPolicy::RemoveOnEndOverlap;
 
 	TMap<FActiveGameplayEffectHandle, UAbilitySystemComponent*> ActiveEffectHandles;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Applied Effects")
+	float ActorLevel = 1.f;
 };
