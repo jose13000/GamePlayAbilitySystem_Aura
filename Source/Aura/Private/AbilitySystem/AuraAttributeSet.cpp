@@ -32,13 +32,11 @@ void UAuraAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute, 
 
 	if (Attribute == GetHealthAttribute())
 	{
-		NewValue = FMath::Clamp(NewValue, 0, GetMaxHealth());
-		// UE_LOG(LogTemp, Warning, TEXT("Health: %f"), NewValue)
+		NewValue = FMath::Clamp(NewValue, 0.f, GetMaxHealth());
 	}
 	if (Attribute == GetManaAttribute())
 	{
-		NewValue = FMath::Clamp(NewValue, 0, GetMaxMana());
-		// UE_LOG(LogTemp, Warning, TEXT("Mana: %f"), NewValue)
+		NewValue = FMath::Clamp(NewValue, 0.f, GetMaxMana());
 	}
 }
 
@@ -48,6 +46,14 @@ void UAuraAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallba
 
 	FEffectProperties Props;
 	SetEffectProperties(Data, Props);
+	if (Data.EvaluatedData.Attribute == GetHealthAttribute())
+	{
+		SetHealth(FMath::Clamp(GetHealth(), 0.f, GetMaxHealth()));
+	}
+	if (Data.EvaluatedData.Attribute == GetManaAttribute())
+	{
+		SetMana(FMath::Clamp(GetMana(), 0.f, GetMaxMana()));
+	}
 }
 
 void UAuraAttributeSet::OnRep_Health(const FGameplayAttributeData& OldHealth) const
@@ -77,7 +83,8 @@ void UAuraAttributeSet::SetEffectProperties(const FGameplayEffectModCallbackData
 	Props.EffectContextHandle = Data.EffectSpec.GetContext();
 	Props.SourceASC = Props.EffectContextHandle.GetOriginalInstigatorAbilitySystemComponent();
 
-	if (IsValid(Props.SourceASC) && Props.SourceASC->AbilityActorInfo.IsValid() && Props.SourceASC->AbilityActorInfo->AvatarActor.IsValid())
+	if (IsValid(Props.SourceASC) && Props.SourceASC->AbilityActorInfo.IsValid() && Props.SourceASC->AbilityActorInfo->
+		AvatarActor.IsValid())
 	{
 		Props.SourceAvatarActor = Props.SourceASC->AbilityActorInfo->AvatarActor.Get();
 		Props.SourceController = Props.SourceASC->AbilityActorInfo->PlayerController.Get();
