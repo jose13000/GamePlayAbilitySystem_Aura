@@ -7,7 +7,7 @@
 void UAttributeMenuWidgetController::BindCallbacksToDependencies()
 {
 	const UAuraAttributeSet* AS = CastChecked<UAuraAttributeSet>(AttributeSet);
-
+	check(AttributeInfo)
 	for (auto& Pair : AS->TagsToAttributes)
 	{
 		AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(Pair.Value()).AddLambda(
@@ -22,9 +22,7 @@ void UAttributeMenuWidgetController::BindCallbacksToDependencies()
 void UAttributeMenuWidgetController::BroadcastInitialValues()
 {
 	UAuraAttributeSet* AS = CastChecked<UAuraAttributeSet>(AttributeSet);
-
 	check(AttributeInfo)
-
 	for (auto& Pair : AS->TagsToAttributes)
 	{
 		BroadcastAttributeInfo(Pair.Key,Pair.Value());
