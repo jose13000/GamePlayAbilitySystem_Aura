@@ -1,9 +1,9 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Input/AuraInputConfig.h"
+#include "Input/AuraInputConfiguration.h"
 
-const UInputAction* UAuraInputConfig::FindAbilityInputActionForTag(const FGameplayTag& InputTag, bool bLogNotFound) const
+const UInputAction* UAuraInputConfiguration::FindAbilityInputActionForTag(const FGameplayTag& InputTag, bool bLogNotFound) const
 {
 	for (const FAuraInputAction& Action: AbilityInputActions)
 	{

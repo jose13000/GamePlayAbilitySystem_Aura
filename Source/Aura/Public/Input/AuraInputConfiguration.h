@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "Engine/DataAsset.h"
 #include "GameplayTagContainer.h"
-#include "AuraInputConfig.generated.h"
+#include "AuraInputConfiguration.generated.h"
 
 USTRUCT(BlueprintType)
 struct FAuraInputAction
@@ -23,7 +23,7 @@ struct FAuraInputAction
  * 
  */
 UCLASS()
-class AURA_API UAuraInputConfig : public UDataAsset
+class AURA_API UAuraInputConfiguration : public UDataAsset
 {
 	GENERATED_BODY()
 public:
