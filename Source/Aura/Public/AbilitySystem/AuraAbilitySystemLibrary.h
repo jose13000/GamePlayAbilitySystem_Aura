@@ -3,9 +3,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Data/CharacterClassInfo.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "AuraAbilitySystemLibrary.generated.h"
 
+class UAbilitySystemComponent;
 class UOverlayWidgetController;
 class UAttributeMenuWidgetController;
 /**
@@ -23,4 +25,6 @@ public:
 	
 	UFUNCTION(BlueprintPure, Category="AuraAbilitySystemLibrary|WidgetController")
 	static UAttributeMenuWidgetController* GetAttributeMenuWidgetController(const UObject* WorldContestObject);
+
+	static void InitializeDefaultAttributes(const UObject* WorldContestObject, ECharacterClass CharacterClass, float Level, UAbilitySystemComponent* ASC);
 };
