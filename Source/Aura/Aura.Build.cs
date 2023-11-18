@@ -12,7 +12,7 @@ public class Aura : ModuleRules
 			{ "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput", "GameplayAbilities" });
 
 		PrivateDependencyModuleNames.AddRange(new string[]
-			{ "GameplayTags", "GameplayTasks", "NavigationSystem", "Niagara" });
+			{ "GameplayTags", "GameplayTasks", "NavigationSystem", "Niagara", "AIModule" });
 
 		// Uncomment if you are using Slate UI
 		// PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });
