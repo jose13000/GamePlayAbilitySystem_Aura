@@ -86,7 +86,7 @@ AActor* AAuraEnemy::GetCombatTarget_Implementation() const
 void AAuraEnemy::HitReactTagChanged(const FGameplayTag CallbackTag, int32 NewCount)
 {
 	bHitReacting = NewCount > 0;
-	GetCharacterMovement()->MaxWalkSpeed = bHitReacting ? 0.f : BaseMaxWalkSpeed;
+	GetCharacterMovement()->MaxWalkSpeed = bHitReacting ? 0.f : BaseWalkSpeed;
 	if (AuraAIController && AuraAIController->GetBlackboardComponent())
 	{
 		AuraAIController->GetBlackboardComponent()->SetValueAsBool(FName("HitReacting"), bHitReacting);
@@ -96,7 +96,7 @@ void AAuraEnemy::HitReactTagChanged(const FGameplayTag CallbackTag, int32 NewCou
 void AAuraEnemy::BeginPlay()
 {
 	Super::BeginPlay();
-	GetCharacterMovement()->MaxWalkSpeed = BaseMaxWalkSpeed;
+	GetCharacterMovement()->MaxWalkSpeed = BaseWalkSpeed;
 	InitAbilityActorInfo();
 
 	if (HasAuthority())
