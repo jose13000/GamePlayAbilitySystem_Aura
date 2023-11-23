@@ -19,12 +19,13 @@ TArray<FVector> UAuraSummonAbility::GetSpawnLocations()
 		FVector ChosenSpawnLocation = Location + Direction * FMath::FRandRange(MinSpawnDistance, MaxSpawnDistance);
 
 		FHitResult Hit;
-		GetWorld()->LineTraceSingleByChannel(Hit, ChosenSpawnLocation + FVector(0.f, 0.f, 400.f), ChosenSpawnLocation - FVector(0.f, 0.f, 400.f), ECC_Visibility);
+		GetWorld()->LineTraceSingleByChannel(Hit, ChosenSpawnLocation + FVector(0.f, 0.f, 400.f),
+		                                     ChosenSpawnLocation - FVector(0.f, 0.f, 400.f), ECC_Visibility);
 		if (Hit.bBlockingHit)
 		{
 			ChosenSpawnLocation = Hit.ImpactPoint;
 		}
-		
+
 		SpawnLocations.Add(ChosenSpawnLocation);
 	}
 
