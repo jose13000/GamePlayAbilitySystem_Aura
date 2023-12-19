@@ -133,7 +133,6 @@ public:
 	 */
 	FGameplayTag Effects_HitReact;
 
-
 	/*
 	 * Player Tags
 	 */
