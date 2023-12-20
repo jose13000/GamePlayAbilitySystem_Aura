@@ -45,6 +45,7 @@ void AAuraCharacterBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& O
 
 	DOREPLIFETIME(AAuraCharacterBase, bIsStunned);
 	DOREPLIFETIME(AAuraCharacterBase, bIsBurned);
+	DOREPLIFETIME(AAuraCharacterBase, bIsBeingShocked);
 }
 
 UAbilitySystemComponent* AAuraCharacterBase::GetAbilitySystemComponent() const
@@ -201,6 +202,16 @@ FOnASCRegistered& AAuraCharacterBase::GetOnASCRegisteredDelegate()
 USkeletalMeshComponent* AAuraCharacterBase::GetWeapon_Implementation()
 {
 	return Weapon;
+}
+
+void AAuraCharacterBase::SetIsBeingShocked_Implementation(bool bInShock)
+{
+	bIsBeingShocked = bInShock;
+}
+
+bool AAuraCharacterBase::IsBeingShocked_Implementation() const
+{
+	return bIsBeingShocked;
 }
 
 void AAuraCharacterBase::StunTagChanged(const FGameplayTag CallbackTag, int32 NewCount)

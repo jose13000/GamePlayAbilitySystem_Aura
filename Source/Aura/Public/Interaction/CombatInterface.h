@@ -97,4 +97,10 @@ class AURA_API ICombatInterface
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	USkeletalMeshComponent* GetWeapon();
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	bool IsBeingShocked() const;
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	void SetIsBeingShocked(bool bInShock);
 };
