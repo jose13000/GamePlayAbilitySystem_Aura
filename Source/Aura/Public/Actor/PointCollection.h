@@ -11,7 +11,7 @@ class AURA_API APointCollection : public AActor
 {
 	GENERATED_BODY()
 
-public:	
+public:
 	APointCollection();
 
 	UFUNCTION(BlueprintPure)
@@ -55,6 +55,4 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
 	TObjectPtr<USceneComponent> Pt_10;
-
-
 };
