@@ -7,6 +7,9 @@
 #include "Data/CharacterClassInfo.h"
 #include "AuraAbilitySystemLibrary.generated.h"
 
+struct FDamageEffectParams;
+struct FGameplayTag;
+struct FGameplayEffectContextHandle;
 class UAbilityInfo;
 class USpellMenuWidgetController;
 class UAbilitySystemComponent;
