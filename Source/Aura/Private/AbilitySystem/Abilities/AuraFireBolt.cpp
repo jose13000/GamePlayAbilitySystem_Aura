@@ -111,13 +111,11 @@ void UAuraFireBolt::SpawnProjectiles(const FVector& ProjectileTargetLocation, co
 		SocketTag);
 	FRotator Rotation = (ProjectileTargetLocation - SocketLocation).Rotation();
 	if (bOverridePitch) Rotation.Pitch = PitchOverride;
-
+	
 	const FVector Forward = Rotation.Vector();
 	const int32 EffectiveNumProjectiles = FMath::Min(NumProjectiles, GetAbilityLevel());
 	TArray<FRotator> Rotations = UAuraAbilitySystemLibrary::EvenlySpacedRotators(Forward, FVector::UpVector, ProjectileSpread, EffectiveNumProjectiles);
 
-
-	//NumProjectiles = FMath::Min(MaxNumProjectiles, GetAbilityLevel());
 	for (const FRotator& Rot : Rotations)
 	{
 		FTransform SpawnTransform;
@@ -130,7 +128,7 @@ void UAuraFireBolt::SpawnProjectiles(const FVector& ProjectileTargetLocation, co
 		GetOwningActorFromActorInfo(),
 		Cast<APawn>(GetOwningActorFromActorInfo()),
 		ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
-
+	
 		Projectile->DamageEffectParams = MakeDamageEffectParamsFromClassDefaults();
 
 		if (HomingTarget && HomingTarget->Implements<UCombatInterface>())
@@ -145,7 +143,7 @@ void UAuraFireBolt::SpawnProjectiles(const FVector& ProjectileTargetLocation, co
 		}
 		Projectile->ProjectileMovement->HomingAccelerationMagnitude = FMath::FRandRange(HomingAccelerationMin, HomingAccelerationMax);
 		Projectile->ProjectileMovement->bIsHomingProjectile = bLaunchHomingProjectiles;
-
+		
 		Projectile->FinishSpawning(SpawnTransform);
 	}
 }

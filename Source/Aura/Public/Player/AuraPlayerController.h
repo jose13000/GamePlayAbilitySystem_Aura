@@ -7,17 +7,20 @@
 #include "GameFramework/PlayerController.h"
 #include "AuraPlayerController.generated.h"
 
+
 class AMagicCircle;
-class UNiagaraSystem;
 class UDamageTextComponent;
 class USplineComponent;
-class UAuraInputConfiguration;
-class UInputMappingContext;
-class UInputAction;
-class IEnemyInterface;
+class UNiagaraSystem;
 class UAuraAbilitySystemComponent;
-
+struct FGameplayTag;
 struct FInputActionValue;
+class UInputAction;
+class UInputMappingContext;
+class UAuraInputConfiguration;
+class UCameraComponent;
+class USpringArmComponent;
+
 /**
  * 
  */
@@ -25,6 +28,7 @@ UCLASS()
 class AURA_API AAuraPlayerController : public APlayerController
 {
 	GENERATED_BODY()
+
 public:
 	AAuraPlayerController();
 	virtual void PlayerTick(float DeltaTime) override;
@@ -37,68 +41,92 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void HideMagicCircle();
-	
+
 protected:
 	virtual void BeginPlay() override;
 	virtual void SetupInputComponent() override;
+
 private:
+	/** Data Asset that contains the InputActions with the Abilities Tags that should activate */
+	UPROPERTY(EditDefaultsOnly, Category="Input")
+	TObjectPtr<UAuraInputConfiguration> InputConfig;
+
+	/** Input Mapping Context */
 	UPROPERTY(EditAnywhere, Category="Input")
 	TObjectPtr<UInputMappingContext> AuraContext;
 
+	/** Move Input Action */
 	UPROPERTY(EditAnywhere, Category="Input")
 	TObjectPtr<UInputAction> MoveAction;
-
+	/** Shift Input Action */
 	UPROPERTY(EditAnywhere, Category="Input")
 	TObjectPtr<UInputAction> ShiftAction;
-
 	void ShiftPressed() { bShiftKeyDown = true; };
 	void ShiftReleased() { bShiftKeyDown = false; };
 	bool bShiftKeyDown = false;
 
+	/** Called for MoveAction input */
 	void Move(const FInputActionValue& InputActionValue);
 
-	void CursorTrace();
-	IEnemyInterface* LastActor;
-	IEnemyInterface* ThisActor;
-	FHitResult CursorHit;
+	/** Abilities Input Actions */
+	virtual void AbilityInputTagPressed(FGameplayTag InputTag);
+	virtual void AbilityInputTagReleased(FGameplayTag InputTag);
+	virtual void AbilityInputTagHeld(FGameplayTag InputTag);
 
-	void AbilityInputTagPressed(FGameplayTag InputTag);
-	void AbilityInputTagReleased(FGameplayTag InputTag);
-	void AbilityInputTagHeld(FGameplayTag InputTag);
-
-	UPROPERTY(EditDefaultsOnly, Category="Input")
-	TObjectPtr<UAuraInputConfiguration> InputConfig;
-
+	/** Custom Ability System Component */
 	UPROPERTY()
 	TObjectPtr<UAuraAbilitySystemComponent> AuraAbilitySystemComponent;
-
+	/** Get the Ability System Component */
 	UAuraAbilitySystemComponent* GetASC();
 
-	FVector CachedDestination = FVector::ZeroVector;
-	float FollowTime = 0.f;
-	float ShortPressThreshold = 0.5f;
+	/** Current player's target */
+	TObjectPtr<AActor> ThisActor;
+	/** Previous player's target */
+	TObjectPtr<AActor> LastActor;
+	/** status of the player target */
+	// ETargetingStatus TargetingStatus = ETargetingStatus::NotTargeting;
+
+	/** Determine if the player character is moving the a clicked point of getting close to a target */
 	bool bAutoRunning = false;
-	bool bTargeting = false;
-
-	UPROPERTY(EditDefaultsOnly)
-	float AutoRunAcceptanceRadius = 50.f;
-
-	UPROPERTY(VisibleAnywhere)
-	TObjectPtr<USplineComponent> Spline;
-
+	/** Current destination point where the character should move to */
+	FVector CachedDestination = FVector::ZeroVector;
+	/** Time elapsed since the player held down the input */
+	float FollowTime = 0.f;
+	/** Minimum time the player must hold down the input to be considered a Held Input */
+	float ShortPressThreshold = 0.5f;
+	/** Decal to spawn when click on a navigable point */
 	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<UNiagaraSystem> ClickNiagaraSystem;
-
+	/** NavigationMesh Points Collection */
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<USplineComponent> Spline;
+	/** Move the character to each Spline collection point */
 	void AutoRun();
+	/** Minimum distance between the character and the spline point con consider the point reached */
+	UPROPERTY(EditDefaultsOnly)
+	float AutoRunAcceptanceRadius = 50.f;
+	
+	/** Do a line trace from the cursor location to the world */
+	void CursorTrace();
+	/** Resulting hit struct resulting of the  CursorHit() method */
+	FHitResult CursorHit;
+	/** Highlight a desire actor */
+	static void HighlightActor(AActor* InActor);
+	/** UnHighlight a desire actor */
+	static void UnHighlightActor(AActor* InActor);
 
+	/** WidgetComponent class of the damage of effects IU view */
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<UDamageTextComponent> DamageTextComponentClass;
 
+	/** Magic Circle Class */
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<AMagicCircle> MagicCircleClass;
-
+	/** Magic Circle Instance */
 	UPROPERTY()
 	TObjectPtr<AMagicCircle> MagicCircle;
+	/** Magic Circle Instance */
+	void UpdateMagicCircleLocation() const;
 
-	void UpdateMagicCircleLocation();
+	bool bTargeting = false;
 };

@@ -10,19 +10,37 @@
 #include "AbilitySystem/Data/LevelUpInfo.h"
 #include "AbilitySystem/Debuff/DebuffNiagaraComponent.h"
 #include "Camera/CameraComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Player/AuraPlayerController.h"
 #include "Player/AuraPlayerState.h"
+#include "Player/MMORPGPlayerController.h"
 #include "UI/HUD/AuraHUD.h"
 
 AAuraCharacter::AAuraCharacter()
 {
+	// Set size for collision capsule
+	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
+
+	// Don't rotate when the controller rotates. Let that just affect the camera.
+	bUseControllerRotationPitch = false;
+	bUseControllerRotationRoll = false;
+	bUseControllerRotationYaw = false;
+
+	// Configure character movement
+	GetCharacterMovement()->bOrientRotationToMovement = true;
+	GetCharacterMovement()->RotationRate = FRotator(0.f, 400.f, 0.f);
+	GetCharacterMovement()->bConstrainToPlane = true;
+	GetCharacterMovement()->bSnapToPlaneAtStart = true;
+
+	// Create a camera boom (pulls in towards the player if there is a collision)
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>("CameraBoom");
 	CameraBoom->SetupAttachment(GetRootComponent());
 	CameraBoom->SetUsingAbsoluteRotation(true);
 	CameraBoom->bDoCollisionTest = false;
 
+	// Create a follow camera
 	TopDownCameraComponent = CreateDefaultSubobject<UCameraComponent>("TopDownCameraComponent");
 	TopDownCameraComponent->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
 	TopDownCameraComponent->bUsePawnControlRotation = false;
@@ -30,15 +48,6 @@ AAuraCharacter::AAuraCharacter()
 	LevelUpNiagaraComponent = CreateDefaultSubobject<UNiagaraComponent>("LevelUpNiagaraComponent");
 	LevelUpNiagaraComponent->SetupAttachment(GetRootComponent());
 	LevelUpNiagaraComponent->bAutoActivate = false;
-
-	GetCharacterMovement()->bOrientRotationToMovement = true;
-	GetCharacterMovement()->RotationRate = FRotator(0.f, 400.f, 0.f);
-	GetCharacterMovement()->bConstrainToPlane = true;
-	GetCharacterMovement()->bSnapToPlaneAtStart = true;
-
-	bUseControllerRotationPitch = false;
-	bUseControllerRotationRoll = false;
-	bUseControllerRotationYaw = false;
 
 	CharacterClass = ECharacterClass::Elementalist;
 }
@@ -201,6 +210,11 @@ void AAuraCharacter::OnRep_Burned()
 	}
 }
 
+void AAuraCharacter::SetTargetArmLength(float value) const
+{
+	CameraBoom->TargetArmLength = FMath::Clamp(CameraBoom->TargetArmLength + value, 200.f, 1600.f);
+}
+
 void AAuraCharacter::InitAbilityActorInfo()
 {
 	AAuraPlayerState* AuraPlayerState = GetPlayerState<AAuraPlayerState>();
@@ -213,14 +227,20 @@ void AAuraCharacter::InitAbilityActorInfo()
 	AttributeSet = AuraPlayerState->GetAttributeSet();
 	OnAscRegistered.Broadcast(AbilitySystemComponent);
 	AbilitySystemComponent->RegisterGameplayTagEvent(FAuraGameplayTags::Get().Debuff_Stun,
-	                                                 EGameplayTagEventType::NewOrRemoved).AddUObject(
-		this, &AAuraCharacter::StunTagChanged);
+	                                                 EGameplayTagEventType::NewOrRemoved)
+	                      .AddUObject(this, &AAuraCharacter::StunTagChanged);
 
 	if (AAuraPlayerController* AuraPlayerController = Cast<AAuraPlayerController>(GetController()))
 	{
 		if (AAuraHUD* AuraHUD = Cast<AAuraHUD>(AuraPlayerController->GetHUD()))
 		{
 			AuraHUD->InitOverlay(AuraPlayerController, AuraPlayerState, AbilitySystemComponent, AttributeSet);
+		}
+	} else if (AMMORPGPlayerController* MMOAuraPlayerController = Cast<AMMORPGPlayerController>(GetController()))
+	{
+		if (AAuraHUD* AuraHUD = Cast<AAuraHUD>(MMOAuraPlayerController->GetHUD()))
+		{
+			AuraHUD->InitOverlay(MMOAuraPlayerController, AuraPlayerState, AbilitySystemComponent, AttributeSet);
 		}
 	}
 	InitializeDefaultAttributes();

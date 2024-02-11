@@ -48,7 +48,9 @@ public:
 
 	virtual void OnRep_Stunned() override;
 	virtual void OnRep_Burned() override;
-
+	
+	void SetTargetArmLength(float value) const;
+	
 private:
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UCameraComponent> TopDownCameraComponent;
@@ -60,4 +62,8 @@ private:
 
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastLevelUpParticles() const;
+
+public:
+	FORCEINLINE UCameraComponent* GetCamera() const { return TopDownCameraComponent; }
+	FORCEINLINE USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 };
