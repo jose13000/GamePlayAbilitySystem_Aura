@@ -119,8 +119,10 @@ void AMMORPGPlayerController::SetupInputComponent()
 	                                   &AMMORPGPlayerController::RightClickReleased);
 
 	// Shift
-	EtherniaInputComponent->BindAction(ShiftAction, ETriggerEvent::Started, this, &AMMORPGPlayerController::ShiftPressed);
-	EtherniaInputComponent->BindAction(ShiftAction, ETriggerEvent::Completed, this, &AMMORPGPlayerController::ShiftReleased);
+	EtherniaInputComponent->BindAction(ShiftAction, ETriggerEvent::Started, this,
+	                                   &AMMORPGPlayerController::ShiftPressed);
+	EtherniaInputComponent->BindAction(ShiftAction, ETriggerEvent::Completed, this,
+	                                   &AMMORPGPlayerController::ShiftReleased);
 
 
 	// AbilityInput actions
@@ -204,13 +206,13 @@ void AMMORPGPlayerController::AbilityInputTagPressed(FGameplayTag InputTag)
 
 	if (InputTag.MatchesTagExact(FAuraGameplayTags::Get().InputTag_LMB))
 	{
-		if (IsValid(CurrentTargetActor))
+		if (IsValid(CurrentPointedActor))
 		{
-			TargetingStatus = CurrentTargetActor->Implements<UEnemyInterface>()
+			TargetingStatus = CurrentPointedActor->Implements<UEnemyInterface>()
 				                  ? ETargetingStatus::TargetingEnemy
 				                  : ETargetingStatus::TargetingNonEnemy;
 
-			bTargeting = CurrentTargetActor->Implements<UEnemyInterface>();
+			bTargeting = CurrentPointedActor->Implements<UEnemyInterface>();
 		}
 		else
 		{
@@ -219,7 +221,11 @@ void AMMORPGPlayerController::AbilityInputTagPressed(FGameplayTag InputTag)
 		}
 		bAutoRunning = false;
 	}
-	if (GetASC()) GetASC()->AbilityInputTagPressed(InputTag);
+
+	if (IsValid(TargetActor))
+	{
+		if (GetASC()) GetASC()->AbilityInputTagPressed(InputTag);
+	}
 }
 
 void AMMORPGPlayerController::AbilityInputTagReleased(FGameplayTag InputTag)
@@ -232,42 +238,57 @@ void AMMORPGPlayerController::AbilityInputTagReleased(FGameplayTag InputTag)
 	if (!InputTag.MatchesTagExact(FAuraGameplayTags::Get().InputTag_LMB))
 	{
 		if (GetASC()) GetASC()->AbilityInputTagReleased(InputTag);
-		return;
 	}
-
-	if (GetASC()) GetASC()->AbilityInputTagReleased(InputTag);
-
-	if (TargetingStatus != ETargetingStatus::TargetingEnemy && !bShiftKeyDown)
+	else
 	{
-		const APawn* ControlledPawn = GetPawn();
-		if (InputElapsedTimeHeld <= ShortPressThreshold && ControlledPawn)
+		if (TargetingStatus != ETargetingStatus::TargetingEnemy && !bShiftKeyDown)
 		{
-			if (IsValid(CurrentTargetActor) && CurrentTargetActor->Implements<UHighlightInterface>())
+			const APawn* ControlledPawn = GetPawn();
+			if (InputElapsedTimeHeld <= ShortPressThreshold && ControlledPawn)
 			{
-				IHighlightInterface::Execute_SetMoveToLocation(CurrentTargetActor, CachedDestination);
-			}
-			else if (GetASC() && !GetASC()->HasMatchingGameplayTag(FAuraGameplayTags::Get().Player_Block_InputPressed))
-			{
-				UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, ClickDecal, CachedDestination);
-			}
-			if (UNavigationPath* NavPath = UNavigationSystemV1::FindPathToLocationSynchronously(
-				this, ControlledPawn->GetActorLocation(), CachedDestination))
-			{
-				Spline->ClearSplinePoints();
-				for (const FVector& PointLoc : NavPath->PathPoints)
+				if (IsValid(CurrentPointedActor) && CurrentPointedActor->Implements<UHighlightInterface>())
 				{
-					Spline->AddSplinePoint(PointLoc, ESplineCoordinateSpace::World);
+					IHighlightInterface::Execute_SetMoveToLocation(CurrentPointedActor, CachedDestination);
 				}
-				if (NavPath->PathPoints.Num() > 0)
+				else if (GetASC() && !GetASC()->HasMatchingGameplayTag(
+					FAuraGameplayTags::Get().Player_Block_InputPressed))
 				{
-					CachedDestination = NavPath->PathPoints[NavPath->PathPoints.Num() - 1];
-					bAutoRunning = true;
+					UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, ClickDecal, CachedDestination);
+				}
+				if (UNavigationPath* NavPath = UNavigationSystemV1::FindPathToLocationSynchronously(
+					this, ControlledPawn->GetActorLocation(), CachedDestination))
+				{
+					Spline->ClearSplinePoints();
+					for (const FVector& PointLoc : NavPath->PathPoints)
+					{
+						Spline->AddSplinePoint(PointLoc, ESplineCoordinateSpace::World);
+					}
+					if (NavPath->PathPoints.Num() > 0)
+					{
+						CachedDestination = NavPath->PathPoints[NavPath->PathPoints.Num() - 1];
+						bAutoRunning = true;
+					}
+				}
+			}
+			InputElapsedTimeHeld = 0.f;
+			TargetingStatus = ETargetingStatus::NotTargeting;
+			bTargeting = false;
+		}
+		else
+		{
+			if (IsValid(CurrentPointedActor))
+			{
+				if (CurrentPointedActor != TargetActor)
+				{
+					TargetActor = CurrentPointedActor;
+				}
+				else
+				{
+					if (GetASC()) GetASC()->AbilityInputTagHeld(InputTag);
+					// if (GetASC()) GetASC()->AbilityInputTagReleased(InputTag);
 				}
 			}
 		}
-		InputElapsedTimeHeld = 0.f;
-		TargetingStatus = ETargetingStatus::NotTargeting;
-		bTargeting = false;
 	}
 }
 
@@ -281,22 +302,19 @@ void AMMORPGPlayerController::AbilityInputTagHeld(FGameplayTag InputTag)
 	if (!InputTag.MatchesTagExact(FAuraGameplayTags::Get().InputTag_LMB))
 	{
 		if (GetASC()) GetASC()->AbilityInputTagHeld(InputTag);
-		return;
-	}
-
-	if (TargetingStatus == ETargetingStatus::TargetingEnemy || bShiftKeyDown)
-	{
-		if (GetASC()) GetASC()->AbilityInputTagHeld(InputTag);
 	}
 	else
 	{
-		InputElapsedTimeHeld += GetWorld()->GetDeltaSeconds();
-		if (CursorHit.bBlockingHit) CachedDestination = CursorHit.ImpactPoint;
-
-		if (APawn* ControlledPawn = GetPawn())
+		if (TargetingStatus != ETargetingStatus::TargetingEnemy && !bShiftKeyDown)
 		{
-			const FVector WorldDirection = (CachedDestination - ControlledPawn->GetActorLocation()).GetSafeNormal();
-			ControlledPawn->AddMovementInput(WorldDirection);
+			InputElapsedTimeHeld += GetWorld()->GetDeltaSeconds();
+			if (CursorHit.bBlockingHit) CachedDestination = CursorHit.ImpactPoint;
+
+			if (APawn* ControlledPawn = GetPawn())
+			{
+				const FVector WorldDirection = (CachedDestination - ControlledPawn->GetActorLocation()).GetSafeNormal();
+				ControlledPawn->AddMovementInput(WorldDirection);
+			}
 		}
 	}
 }
@@ -334,13 +352,13 @@ void AMMORPGPlayerController::CursorTrace()
 {
 	if (GetASC() && GetASC()->HasMatchingGameplayTag(FAuraGameplayTags::Get().Player_Block_CursorTrace))
 	{
-		UnHighlightActor(PreviosTargetActor);
-		UnHighlightActor(CurrentTargetActor);
-		if (IsValid(CurrentTargetActor) && CurrentTargetActor->Implements<UHighlightInterface>())
+		UnHighlightActor(PreviousPointedActor);
+		UnHighlightActor(CurrentPointedActor);
+		if (IsValid(CurrentPointedActor) && CurrentPointedActor->Implements<UHighlightInterface>())
 		{
-			PreviosTargetActor = nullptr;
+			PreviousPointedActor = nullptr;
 		}
-		CurrentTargetActor = nullptr;
+		CurrentPointedActor = nullptr;
 		return;
 	}
 
@@ -348,20 +366,20 @@ void AMMORPGPlayerController::CursorTrace()
 	GetHitResultUnderCursor(TraceChannel, false, CursorHit);
 	if (!CursorHit.bBlockingHit) return;
 
-	PreviosTargetActor = CurrentTargetActor;
+	PreviousPointedActor = CurrentPointedActor;
 	if (IsValid(CursorHit.GetActor()) && CursorHit.GetActor()->Implements<UHighlightInterface>())
 	{
-		CurrentTargetActor = CursorHit.GetActor();
+		CurrentPointedActor = CursorHit.GetActor();
 	}
 	else
 	{
-		CurrentTargetActor = nullptr;
+		CurrentPointedActor = nullptr;
 	}
 
-	if (PreviosTargetActor != CurrentTargetActor)
+	if (PreviousPointedActor != CurrentPointedActor)
 	{
-		UnHighlightActor(PreviosTargetActor);
-		HighlightActor(CurrentTargetActor);
+		UnHighlightActor(PreviousPointedActor);
+		HighlightActor(CurrentPointedActor);
 	}
 }
 

@@ -156,6 +156,11 @@ void AAuraCharacter::ShowMagicCircle_Implementation(UMaterialInterface* DecalMat
 		AuraPlayerController->ShowMagicCircle(DecalMaterial);
 		AuraPlayerController->bShowMouseCursor = false;
 	}
+	else if (AMMORPGPlayerController* MMOAuraPlayerController = Cast<AMMORPGPlayerController>(GetController()))
+	{
+		MMOAuraPlayerController->ShowMagicCircle(DecalMaterial);
+		MMOAuraPlayerController->bShowMouseCursor = false;
+	}
 }
 
 void AAuraCharacter::HideMagicCircle_Implementation()
@@ -165,6 +170,20 @@ void AAuraCharacter::HideMagicCircle_Implementation()
 		AuraPlayerController->HideMagicCircle();
 		AuraPlayerController->bShowMouseCursor = true;
 	}
+	else if (AMMORPGPlayerController* MMOAuraPlayerController = Cast<AMMORPGPlayerController>(GetController()))
+	{
+		MMOAuraPlayerController->HideMagicCircle();
+		MMOAuraPlayerController->bShowMouseCursor = true;
+	}
+}
+
+AActor* AAuraCharacter::GetTargetActor_Implementation()
+{
+	if (const AMMORPGPlayerController* MMOAuraPlayerController = Cast<AMMORPGPlayerController>(GetController()))
+	{
+		return MMOAuraPlayerController->GetTargetActor();
+	}
+	return nullptr;
 }
 
 int32 AAuraCharacter::GetPlayerLevel_Implementation()
@@ -236,7 +255,8 @@ void AAuraCharacter::InitAbilityActorInfo()
 		{
 			AuraHUD->InitOverlay(AuraPlayerController, AuraPlayerState, AbilitySystemComponent, AttributeSet);
 		}
-	} else if (AMMORPGPlayerController* MMOAuraPlayerController = Cast<AMMORPGPlayerController>(GetController()))
+	}
+	else if (AMMORPGPlayerController* MMOAuraPlayerController = Cast<AMMORPGPlayerController>(GetController()))
 	{
 		if (AAuraHUD* AuraHUD = Cast<AAuraHUD>(MMOAuraPlayerController->GetHUD()))
 		{

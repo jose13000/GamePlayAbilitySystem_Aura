@@ -112,9 +112,11 @@ private:
 	UAuraAbilitySystemComponent* GetASC();
 
 	/** Current player's target */
-	TObjectPtr<AActor> CurrentTargetActor;
+	TObjectPtr<AActor> TargetActor;
+	/** Current player's target */
+	TObjectPtr<AActor> CurrentPointedActor;
 	/** Previous player's target */
-	TObjectPtr<AActor> PreviosTargetActor;
+	TObjectPtr<AActor> PreviousPointedActor;
 	/** status of the player target */
 	ETargetingStatus TargetingStatus = ETargetingStatus::NotTargeting;
 
@@ -161,4 +163,7 @@ private:
 	void UpdateMagicCircleLocation() const;
 
 	bool bTargeting = false;
+
+public:
+	FORCEINLINE AActor* GetTargetActor() const { return TargetActor ; };
 };
