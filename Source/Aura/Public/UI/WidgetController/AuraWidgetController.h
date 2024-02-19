@@ -7,6 +7,8 @@
 #include "UObject/NoExportTypes.h"
 #include "AuraWidgetController.generated.h"
 
+class AMMORPGPlayerController;
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPlayerTgetChangedSignature, AActor*, TargetActor);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPlayerStatChangedSignature, int32, NewValue);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FAbilityInfoSignature, const FAuraAbilityInfo&, Info);
 
@@ -78,6 +80,9 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, Category="WidgetController")
 	TObjectPtr<AAuraPlayerController> AuraPlayerController;
+	
+	UPROPERTY(BlueprintReadOnly, Category="WidgetController")
+	TObjectPtr<AMMORPGPlayerController> MMORPGPlayerController;
 
 	UPROPERTY(BlueprintReadOnly, Category="WidgetController")
 	TObjectPtr<AAuraPlayerState> AuraPlayerState;
@@ -89,6 +94,7 @@ protected:
 	TObjectPtr<UAuraAttributeSet> AuraAttributeSet;
 
 	AAuraPlayerController* GetAuraPC();
+	AMMORPGPlayerController* GetMMOAuraPC();
 	AAuraPlayerState* GetAuraPS();
 	UAuraAbilitySystemComponent* GetAuraASC();
 	UAuraAttributeSet* GetAuraAS();

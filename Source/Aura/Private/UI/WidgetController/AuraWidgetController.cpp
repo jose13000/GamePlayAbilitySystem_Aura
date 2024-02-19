@@ -8,6 +8,7 @@
 #include "AbilitySystem/AuraAbilitySystemComponent.h"
 #include "AbilitySystem/AuraAttributeSet.h"
 #include "AbilitySystem/Data/AbilityInfo.h"
+#include "Player/MMORPGPlayerController.h"
 
 void UAuraWidgetController::SetWidgetControllerParams(const FWidgetControllerParams& WCParams)
 {
@@ -48,6 +49,15 @@ AAuraPlayerController* UAuraWidgetController::GetAuraPC()
 		AuraPlayerController = Cast<AAuraPlayerController>(PlayerController);
 	}
 	return AuraPlayerController;
+}
+
+AMMORPGPlayerController* UAuraWidgetController::GetMMOAuraPC()
+{
+	if (MMORPGPlayerController == nullptr)
+	{
+		MMORPGPlayerController = Cast<AMMORPGPlayerController>(PlayerController);
+	}
+	return MMORPGPlayerController;
 }
 
 AAuraPlayerState* UAuraWidgetController::GetAuraPS()

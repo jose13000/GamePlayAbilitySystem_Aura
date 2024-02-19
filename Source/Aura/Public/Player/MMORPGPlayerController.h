@@ -7,6 +7,7 @@
 #include "GameFramework/PlayerController.h"
 #include "MMORPGPlayerController.generated.h"
 
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnPlayerTargetChanged, AActor* /*TargetActor*/)
 
 class AMagicCircle;
 class UDamageTextComponent;
@@ -52,6 +53,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void HideMagicCircle();
 
+	FOnPlayerTargetChanged OnTargetActorChangedDelegate;
+
 protected:
 	virtual void BeginPlay() override;
 	virtual void SetupInputComponent() override;
@@ -64,7 +67,7 @@ private:
 	/** Input Mapping Context */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputMappingContext* DefaultMappingContext;
-	
+
 	/** Jump Input Action */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* JumpAction;
@@ -119,6 +122,8 @@ private:
 	TObjectPtr<AActor> PreviousPointedActor;
 	/** status of the player target */
 	ETargetingStatus TargetingStatus = ETargetingStatus::NotTargeting;
+	UFUNCTION()
+	void TargetActorDied(AActor* DeadActor);
 
 	/** Determine if the player character is moving the a clicked point of getting close to a target */
 	bool bAutoRunning = false;
@@ -165,5 +170,5 @@ private:
 	bool bTargeting = false;
 
 public:
-	FORCEINLINE AActor* GetTargetActor() const { return TargetActor ; };
+	FORCEINLINE AActor* GetTargetActor() const { return TargetActor; };
 };

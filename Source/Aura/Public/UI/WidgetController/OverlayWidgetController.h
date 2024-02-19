@@ -68,6 +68,9 @@ public:
 	UPROPERTY(BlueprintAssignable, Category="GAS|Level")
 	FOnPlayerStatChangedSignature OnPlayerLevelChangedDelegate;
 
+	UPROPERTY(BlueprintAssignable, Category="GAS|Target")
+	FOnPlayerTgetChangedSignature OnTargetActorChangedDelegate;
+
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Widget Data")
 	TObjectPtr<UDataTable> MessageWidgetDataTable;

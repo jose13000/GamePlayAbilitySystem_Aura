@@ -94,6 +94,26 @@ AActor* AAuraEnemy::GetCombatTarget_Implementation() const
 	return CombatTarget;
 }
 
+float AAuraEnemy::GetCurrentHealth()
+{
+	if (const UAuraAttributeSet* AuraAS = Cast<UAuraAttributeSet>(AttributeSet))
+	{
+		return AbilitySystemComponent->GetNumericAttribute(AuraAS->GetHealthAttribute());
+	}
+
+	return 0.f;
+}
+
+float AAuraEnemy::GetCurrentMaxHealth()
+{
+	if (const UAuraAttributeSet* AuraAS = Cast<UAuraAttributeSet>(AttributeSet))
+	{
+		return AbilitySystemComponent->GetNumericAttribute(AuraAS->GetMaxHealthAttribute());
+	}
+
+	return 0.f;
+}
+
 void AAuraEnemy::HitReactTagChanged(const FGameplayTag CallbackTag, int32 NewCount)
 {
 	bHitReacting = NewCount > 0;

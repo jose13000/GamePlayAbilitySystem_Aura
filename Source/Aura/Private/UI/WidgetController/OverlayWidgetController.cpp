@@ -9,6 +9,7 @@
 #include "AbilitySystem/Data/AbilityInfo.h"
 #include "AbilitySystem/Data/LevelUpInfo.h"
 #include "Player/AuraPlayerState.h"
+#include "Player/MMORPGPlayerController.h"
 
 void UOverlayWidgetController::BroadcastInitialValues()
 {
@@ -21,41 +22,34 @@ void UOverlayWidgetController::BroadcastInitialValues()
 void UOverlayWidgetController::BindCallbacksToDependencies()
 {
 	GetAuraPS()->OnXPChangedDelegate.AddUObject(this, &UOverlayWidgetController::OnXPChanged);
-	GetAuraPS()->OnLevelChangedDelegate.AddLambda(
-		[this](int32 NewLevel)
-		{
-			OnPlayerLevelChangedDelegate.Broadcast(NewLevel);
-		}
-	);
+	GetAuraPS()->OnLevelChangedDelegate.AddLambda([this](int32 NewLevel)
+	{
+		OnPlayerLevelChangedDelegate.Broadcast(NewLevel);
+	});
 
-	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(GetAuraAS()->GetHealthAttribute()).AddLambda(
-		[this](const FOnAttributeChangeData& Data)
-		{
-			OnHealthChanged.Broadcast(Data.NewValue);
-		}
-	);
+	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(GetAuraAS()->GetHealthAttribute())
+	                      .AddLambda([this](const FOnAttributeChangeData& Data)
+	                      {
+		                      OnHealthChanged.Broadcast(Data.NewValue);
+	                      });
 
 	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(GetAuraAS()->GetMaxHealthAttribute()).
-	                        AddLambda(
-		                        [this](const FOnAttributeChangeData& Data)
-		                        {
-			                        OnMaxHealthChanged.Broadcast(Data.NewValue);
-		                        }
-	                        );
+	                        AddLambda([this](const FOnAttributeChangeData& Data)
+	                        {
+		                        OnMaxHealthChanged.Broadcast(Data.NewValue);
+	                        });
 
-	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(GetAuraAS()->GetManaAttribute()).AddLambda(
-		[this](const FOnAttributeChangeData& Data)
-		{
-			OnManaChanged.Broadcast(Data.NewValue);
-		}
-	);
+	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(GetAuraAS()->GetManaAttribute())
+	                      .AddLambda([this](const FOnAttributeChangeData& Data)
+	                      {
+		                      OnManaChanged.Broadcast(Data.NewValue);
+	                      });
 
-	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(GetAuraAS()->GetMaxManaAttribute()).AddLambda(
-		[this](const FOnAttributeChangeData& Data)
-		{
-			OnMaxManaChanged.Broadcast(Data.NewValue);
-		}
-	);
+	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(GetAuraAS()->GetMaxManaAttribute())
+	                      .AddLambda([this](const FOnAttributeChangeData& Data)
+	                      {
+		                      OnMaxManaChanged.Broadcast(Data.NewValue);
+	                      });
 
 	if (GetAuraASC())
 	{
@@ -86,6 +80,15 @@ void UOverlayWidgetController::BindCallbacksToDependencies()
 			}
 		);
 	}
+
+	if (GetMMOAuraPC())
+	{
+		GetMMOAuraPC()->OnTargetActorChangedDelegate
+		              .AddLambda([this](AActor* TargetActor)
+		              {
+			              OnTargetActorChangedDelegate.Broadcast(TargetActor);
+		              });
+	}
 }
 
 void UOverlayWidgetController::OnXPChanged(int32 NewXP)
@@ -111,7 +114,7 @@ void UOverlayWidgetController::OnXPChanged(int32 NewXP)
 }
 
 void UOverlayWidgetController::OnAbilityEquipped(const FGameplayTag& AbilityTag, const FGameplayTag& Status,
-	const FGameplayTag& Slot, const FGameplayTag& PreviousSlot) const
+                                                 const FGameplayTag& Slot, const FGameplayTag& PreviousSlot) const
 {
 	const FAuraGameplayTags& GameplayTags = FAuraGameplayTags::Get();
 

@@ -280,7 +280,22 @@ void AMMORPGPlayerController::AbilityInputTagReleased(FGameplayTag InputTag)
 			{
 				if (CurrentPointedActor != TargetActor)
 				{
+					UnHighlightActor(TargetActor);
 					TargetActor = CurrentPointedActor;
+
+
+					if (ICombatInterface* CombatInterface = Cast<ICombatInterface>(TargetActor))
+					{
+						if (!CombatInterface->GetOnDeathDelegate().IsAlreadyBound(
+							this, &AMMORPGPlayerController::TargetActorDied))
+						{
+							CombatInterface->GetOnDeathDelegate().AddDynamic(
+								this, &AMMORPGPlayerController::TargetActorDied);
+						}
+					}
+
+					OnTargetActorChangedDelegate.Broadcast(TargetActor);
+					HighlightActor(TargetActor);
 				}
 				else
 				{
@@ -329,6 +344,16 @@ UAuraAbilitySystemComponent* AMMORPGPlayerController::GetASC()
 	return EtherniaAbilitySystemComponent;
 }
 
+void AMMORPGPlayerController::TargetActorDied(AActor* DeadActor)
+{
+	if (DeadActor == TargetActor)
+	{
+		TargetActor = nullptr;
+		OnTargetActorChangedDelegate.Broadcast(TargetActor);
+		UnHighlightActor(CurrentPointedActor);
+	}
+}
+
 void AMMORPGPlayerController::AutoRun()
 {
 	if (!bAutoRunning) return;
@@ -352,8 +377,8 @@ void AMMORPGPlayerController::CursorTrace()
 {
 	if (GetASC() && GetASC()->HasMatchingGameplayTag(FAuraGameplayTags::Get().Player_Block_CursorTrace))
 	{
-		UnHighlightActor(PreviousPointedActor);
-		UnHighlightActor(CurrentPointedActor);
+		if (TargetActor != PreviousPointedActor )  UnHighlightActor(PreviousPointedActor);
+		if (TargetActor != CurrentPointedActor )  UnHighlightActor(CurrentPointedActor);
 		if (IsValid(CurrentPointedActor) && CurrentPointedActor->Implements<UHighlightInterface>())
 		{
 			PreviousPointedActor = nullptr;
@@ -378,7 +403,7 @@ void AMMORPGPlayerController::CursorTrace()
 
 	if (PreviousPointedActor != CurrentPointedActor)
 	{
-		UnHighlightActor(PreviousPointedActor);
+		if (TargetActor != PreviousPointedActor )  UnHighlightActor(PreviousPointedActor);
 		HighlightActor(CurrentPointedActor);
 	}
 }

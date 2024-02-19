@@ -37,6 +37,11 @@ public:
 	virtual AActor* GetCombatTarget_Implementation() const override;
 	/** end Combat Interface */
 
+	UFUNCTION(BlueprintPure)
+	virtual float GetCurrentHealth();
+	UFUNCTION(BlueprintPure)
+	virtual float GetCurrentMaxHealth();
+
 	UPROPERTY(BlueprintReadWrite, Category = "Combat")
 	TObjectPtr<AActor> CombatTarget;
 
