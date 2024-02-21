@@ -105,7 +105,7 @@ private:
 	/** Minimum distance between the character and the spline point con consider the point reached */
 	UPROPERTY(EditDefaultsOnly)
 	float AutoRunAcceptanceRadius = 50.f;
-	
+
 	/** Do a line trace from the cursor location to the world */
 	void CursorTrace();
 	/** Resulting hit struct resulting of the  CursorHit() method */
