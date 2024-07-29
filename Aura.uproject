@@ -1,6 +1,6 @@
 {
 	"FileVersion": 3,
-	"EngineAssociation": "{96784CA6-4D47-E84C-4220-B79A048F4549}",
+	"EngineAssociation": "5.4",
 	"Category": "",
 	"Description": "",
 	"Modules": [
@@ -15,7 +15,8 @@
 				"CoreUObject",
 				"EnhancedInput",
 				"AIModule",
-				"Niagara"
+				"Niagara",
+				"ModelViewViewModel"
 			]
 		}
 	],
@@ -33,6 +34,10 @@
 		},
 		{
 			"Name": "MotionWarping",
+			"Enabled": true
+		},
+		{
+			"Name": "ModelViewViewModel",
 			"Enabled": true
 		}
 	]
