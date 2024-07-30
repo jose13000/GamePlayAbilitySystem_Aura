@@ -35,9 +35,11 @@ public:
 
 	void SetPlayerName(FString InPlayerName);
 	void SetSlotName(FString InSlotName);
+	void SetMapName(FString InMapName);
 
 	FString GetPlayerName() const { return PlayerName; }
 	FString GetSlotName() const { return SlotName; }
+	FString GetMapName() const { return MapName; }
 
 private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, FieldNotify, Setter, Getter, meta=(AllowPrivateAccess="true"))
@@ -45,4 +47,7 @@ private:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, FieldNotify, Setter, Getter, meta=(AllowPrivateAccess="true"))
 	FString SlotName;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, FieldNotify, Setter, Getter, meta = (AllowPrivateAccess="true"));
+	FString MapName;
 };
