@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "AuraPlayerController.h"
 #include "GameplayTagContainer.h"
 #include "GameFramework/PlayerController.h"
 #include "MMORPGPlayerController.generated.h"
@@ -21,13 +22,6 @@ class UInputMappingContext;
 class UAuraInputConfiguration;
 class UCameraComponent;
 class USpringArmComponent;
-
-enum class ETargetingStatus : uint8
-{
-	TargetingEnemy,
-	TargetingNonEnemy,
-	NotTargeting
-};
 
 /**
  * 
@@ -122,6 +116,7 @@ private:
 	TObjectPtr<AActor> PreviousPointedActor;
 	/** status of the player target */
 	ETargetingStatus TargetingStatus = ETargetingStatus::NotTargeting;
+
 	UFUNCTION()
 	void TargetActorDied(AActor* DeadActor);
 
