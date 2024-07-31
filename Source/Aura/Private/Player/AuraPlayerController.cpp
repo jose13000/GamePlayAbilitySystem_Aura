@@ -96,14 +96,14 @@ void AAuraPlayerController::SetupInputComponent()
 
 	// Moving
 	AuraInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AAuraPlayerController::Move);
-	
+
 	// Shift
 	AuraInputComponent->BindAction(ShiftAction, ETriggerEvent::Started, this, &AAuraPlayerController::ShiftPressed);
 	AuraInputComponent->BindAction(ShiftAction, ETriggerEvent::Completed, this, &AAuraPlayerController::ShiftReleased);
 
 	// AbilityInput actions
 	AuraInputComponent->BindAbilityActions(InputConfig, this, &ThisClass::AbilityInputTagPressed,
-										   &ThisClass::AbilityInputTagReleased, &ThisClass::AbilityInputTagHeld);
+	                                       &ThisClass::AbilityInputTagReleased, &ThisClass::AbilityInputTagHeld);
 }
 
 void AAuraPlayerController::Move(const FInputActionValue& InputActionValue)
@@ -136,8 +136,17 @@ void AAuraPlayerController::AbilityInputTagPressed(FGameplayTag InputTag)
 
 	if (InputTag.MatchesTagExact(FAuraGameplayTags::Get().InputTag_LMB))
 	{
-		bTargeting = ThisActor ? true : false;
-		bAutoRunning = false;
+		if (IsValid(ThisActor))
+		{
+			TargetingStatus = ThisActor->Implements<UEnemyInterface>()
+				                  ? ETargetingStatus::TargetingEnemy
+				                  : ETargetingStatus::TargetingNonEnemy;
+			bAutoRunning = false;
+		}
+		else
+		{
+			TargetingStatus = ETargetingStatus::NotTargeting;
+		}
 	}
 	if (GetASC()) GetASC()->AbilityInputTagPressed(InputTag);
 }
@@ -156,11 +165,20 @@ void AAuraPlayerController::AbilityInputTagReleased(FGameplayTag InputTag)
 
 	if (GetASC()) GetASC()->AbilityInputTagReleased(InputTag);
 
-	if (!bTargeting && !bShiftKeyDown)
+	if (TargetingStatus != ETargetingStatus::TargetingEnemy && !bShiftKeyDown)
 	{
 		const APawn* ControlledPawn = GetPawn();
 		if (FollowTime <= ShortPressThreshold && ControlledPawn)
 		{
+			if (IsValid(ThisActor) && ThisActor->Implements<UHighlightInterface>())
+			{
+				IHighlightInterface::Execute_SetMoveToLocation(ThisActor, CachedDestination);
+			}
+			else if (GetASC() && !GetASC()->HasMatchingGameplayTag(FAuraGameplayTags::Get().Player_Block_InputPressed))
+			{
+				UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, ClickNiagaraSystem, CachedDestination);
+			}
+
 			if (UNavigationPath* NavPath = UNavigationSystemV1::FindPathToLocationSynchronously(
 				this, ControlledPawn->GetActorLocation(), CachedDestination))
 			{
@@ -175,13 +193,10 @@ void AAuraPlayerController::AbilityInputTagReleased(FGameplayTag InputTag)
 					bAutoRunning = true;
 				}
 			}
-			if (GetASC() && !GetASC()->HasMatchingGameplayTag(FAuraGameplayTags::Get().Player_Block_InputPressed))
-			{
-				UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, ClickNiagaraSystem, CachedDestination);
-			}
 		}
 		FollowTime = 0.f;
 		bTargeting = false;
+		TargetingStatus = ETargetingStatus::NotTargeting;
 	}
 }
 
@@ -198,7 +213,7 @@ void AAuraPlayerController::AbilityInputTagHeld(FGameplayTag InputTag)
 		return;
 	}
 
-	if (bTargeting || bShiftKeyDown)
+	if (TargetingStatus == ETargetingStatus::TargetingEnemy || bShiftKeyDown)
 	{
 		if (GetASC()) GetASC()->AbilityInputTagHeld(InputTag);
 	}

@@ -21,6 +21,14 @@ class UAuraInputConfiguration;
 class UCameraComponent;
 class USpringArmComponent;
 
+
+enum class ETargetingStatus : uint8
+{
+	TargetingEnemy,
+	TargetingNonEnemy,
+	NotTargeting
+};
+
 /**
  * 
  */
@@ -84,7 +92,7 @@ private:
 	/** Previous player's target */
 	TObjectPtr<AActor> LastActor;
 	/** status of the player target */
-	// ETargetingStatus TargetingStatus = ETargetingStatus::NotTargeting;
+	ETargetingStatus TargetingStatus = ETargetingStatus::NotTargeting;
 
 	/** Determine if the player character is moving the a clicked point of getting close to a target */
 	bool bAutoRunning = false;
