@@ -8,6 +8,7 @@
 #include "MVVM_LoadSlot.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FSetWidgetSwitcherIndex, int32, WidgetSwitcherIndex);
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FEnableSelectSlotButton, bool, bEnable);
 
 /**
@@ -39,10 +40,12 @@ public:
 	void SetPlayerName(FString InPlayerName);
 	void SetSlotName(FString InSlotName);
 	void SetMapName(FString InMapName);
+	void SetPlayerLevel(int32 InPlayerLevel);
 
 	FString GetPlayerName() const { return PlayerName; }
 	FString GetSlotName() const { return SlotName; }
 	FString GetMapName() const { return MapName; }
+	int32 GetPlayerLevel() const { return PlayerLevel; }
 
 private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, FieldNotify, Setter, Getter, meta=(AllowPrivateAccess="true"))
@@ -51,6 +54,9 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, FieldNotify, Setter, Getter, meta=(AllowPrivateAccess="true"))
 	FString SlotName;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, FieldNotify, Setter, Getter, meta = (AllowPrivateAccess="true"));
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, FieldNotify, Setter, Getter, meta = (AllowPrivateAccess="true"))
 	FString MapName;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, FieldNotify, Setter, Getter, meta=(AllowPrivateAccess="true"))
+	int32 PlayerLevel;
 };
